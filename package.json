@@ -1,8 +1,20 @@
 {
+  "name": "rustbolt-terrain-viewer",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
   "dependencies": {
+    "dat.gui": "^0.7.9",
     "three": "^0.151.3"
   },
   "devDependencies": {
+    "@types/dat.gui": "^0.7.9",
+    "@types/three": "^0.150.2",
+    "typescript": "^5.0.4",
     "vite": "^4.2.2"
   }
 }
