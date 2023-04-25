@@ -44,6 +44,7 @@ function animate() {
   controls.update(delta)
 
   renderer.render(scene, camera)
+
   stats.end()
 }
 
@@ -61,11 +62,12 @@ const identityVertex = `
 
 const heatFragment = `
   uniform sampler2D gradientMap;
+  uniform float darkeningFactor;
   varying float hValue;
 
   void main() {
     float v = clamp(hValue / 250., 0., 1.);
-    vec3 col = texture2D(gradientMap, vec2(0, v)).rgb;
+    vec3 col = texture2D(gradientMap, vec2(0, v)).rgb * vec3(darkeningFactor, darkeningFactor, darkeningFactor);
     gl_FragColor = vec4(col, 1.);
   }
 `
@@ -91,7 +93,7 @@ export function drawTerrain(
   planeGeom.rotateX(-Math.PI * 0.5)
 
   for (let i = 0; i < planeGeom.attributes.position.count; i++) {
-    ;(planeGeom.attributes.position as THREE.BufferAttribute).setY(
+    ; (planeGeom.attributes.position as THREE.BufferAttribute).setY(
       i,
       terrain.heightMap[i] + terrain.baseHeight
     )
@@ -100,16 +102,19 @@ export function drawTerrain(
   const shaderMat = new THREE.ShaderMaterial({
     uniforms: {
       gradientMap: { value: gradientMap },
+      darkeningFactor: { value: 1 }, // Keep the original colors for the ground
     },
     vertexShader: identityVertex,
     fragmentShader: heatFragment,
   })
   const mesh = new THREE.Mesh(planeGeom, shaderMat)
 
-  const edges = new THREE.EdgesGeometry(planeGeom)
+  const edges = new THREE.EdgesGeometry(planeGeom, 10)
+  const edgeMat = shaderMat.clone()
+  edgeMat.uniforms.darkeningFactor = { value: 0.9 } // Darken the wireframe mesh
   const line = new THREE.LineSegments(
     edges,
-    new THREE.LineBasicMaterial({ color: 0xaaaaaa })
+    edgeMat
   )
 
   mesh.position.x += chunkOffsetX
