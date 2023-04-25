@@ -49,27 +49,6 @@ function animate() {
 
 animate()
 
-const identityVertex = `
-  varying float hValue;
-
-  void main()
-  {
-    hValue = position.y;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`
-
-const heatFragment = `
-  uniform sampler2D gradientMap;
-  varying float hValue;
-
-  void main() {
-    float v = clamp(hValue / 250., 0., 1.);
-    vec3 col = texture2D(gradientMap, vec2(0, v)).rgb;
-    gl_FragColor = vec4(col, 1.);
-  }
-`
-
 const gradientMap = setup()
 
 export function drawTerrain(
@@ -117,6 +96,48 @@ export function drawTerrain(
 
   line.position.x += chunkOffsetX
   line.position.z += chunkOffsetZ
+
+  scene.add(mesh)
+  scene.add(line)
+}
+
+const identityVertex = `
+  varying float hValue;
+
+  void main()
+  {
+    hValue = position.y;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`
+
+const heatFragment = `
+  uniform sampler2D gradientMap;
+  varying float hValue;
+
+  void main() {
+    float v = clamp(hValue / 250., 0., 1.);
+    vec3 col = texture2D(gradientMap, vec2(0, v)).rgb;
+    gl_FragColor = vec4(col, 1.);
+  }
+`
+
+export function drawTerrainNew(planeGeom: THREE.PlaneGeometry) {
+  const shaderMat = new THREE.ShaderMaterial({
+    uniforms: {
+      gradientMap: { value: gradientMap },
+    },
+    vertexShader: identityVertex,
+    fragmentShader: heatFragment,
+  })
+
+  const mesh = new THREE.Mesh(planeGeom, shaderMat)
+
+  const edges = new THREE.EdgesGeometry(planeGeom)
+  const line = new THREE.LineSegments(
+    edges,
+    new THREE.LineBasicMaterial({ color: 0xaaaaaa })
+  )
 
   scene.add(mesh)
   scene.add(line)

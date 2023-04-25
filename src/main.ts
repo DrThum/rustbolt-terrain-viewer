@@ -1,6 +1,9 @@
-import { loadBlock } from './parsing'
 import constants from './models/constants'
-import { drawTerrain } from './gui/viewport'
+import { drawTerrain, drawTerrainNew } from './gui/viewport'
+
+import { workerInstance } from './parsing/utils'
+import { workerInstance as workerInstanceGUI } from './gui/utils'
+import { setup } from './gui/gradient-map'
 
 // GUI:
 // - toggle between gradient/area
@@ -12,10 +15,13 @@ for (let blockRow = 29; blockRow < 35; blockRow++) {
   for (let blockCol = 29; blockCol < 35; blockCol++) {
     const blockOffsetX = constants.BLOCK_WIDTH * (blockRow - 32)
     const blockOffsetZ = constants.BLOCK_WIDTH * (blockCol - 32)
-    const terrains = await loadBlock('Azeroth', blockRow, blockCol)
+    const terrains = await workerInstance.loadBlock('Azeroth', blockRow, blockCol)
 
     terrains.forEach((terrain, idx) => {
-      drawTerrain(blockOffsetX, blockOffsetZ, idx, terrain)
+      workerInstanceGUI.prepareTerrain(blockOffsetX, blockOffsetZ, idx, terrain).then((planeGeom) => {
+        drawTerrainNew(planeGeom)
+
+      })
     })
   }
 }
