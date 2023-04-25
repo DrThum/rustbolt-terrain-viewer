@@ -1,4 +1,5 @@
 import * as THREE from "three"
+import Stats from 'stats.js'
 import { MapControls } from 'three/addons/controls/MapControls.js'
 import constants from "../models/constants"
 import { setup } from "./gradient-map"
@@ -10,8 +11,9 @@ document.body.appendChild(renderer.domElement)
 
 const clock = new THREE.Clock()
 
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 7500)
-camera.position.set(-50, 100, 50)
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 3000)
+camera.position.set(0, 500, 700)
+camera.lookAt(0, 0, 0)
 
 const scene = new THREE.Scene()
 
@@ -25,13 +27,19 @@ controls.mouseButtons = {
 const axesHelper = new THREE.AxesHelper(5)
 scene.add(axesHelper)
 
+const stats = new Stats()
+stats.showPanel(0) // 0: fps, 1: ms, 2: mb, 3+: custom
+document.body.appendChild(stats.dom)
+
 function animate() {
   requestAnimationFrame(animate)
 
+  stats.begin()
   const delta = clock.getDelta()
   controls.update(delta)
 
   renderer.render(scene, camera)
+  stats.end()
 }
 
 animate()
