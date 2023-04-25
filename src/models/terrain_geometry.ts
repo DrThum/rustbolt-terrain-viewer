@@ -1,4 +1,4 @@
 export type TerrainGeometry = {
-  baseHeight: number,
+  baseHeight: number
   heightMap: number[]
 }

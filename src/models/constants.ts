@@ -1,4 +1,4 @@
 export default {
   BLOCK_WIDTH: 533.333328,
-  CHUNK_WIDTH: 33.333333
+  CHUNK_WIDTH: 33.333333,
 }
