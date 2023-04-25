@@ -18,8 +18,8 @@ for (let blockRow = 29; blockRow < 35; blockRow++) {
     const terrains = await workerInstance.loadBlock('Azeroth', blockRow, blockCol)
 
     terrains.forEach((terrain, idx) => {
-      workerInstanceGUI.prepareTerrain(blockOffsetX, blockOffsetZ, idx, terrain).then((planeGeom) => {
-        drawTerrainNew(planeGeom)
+      workerInstanceGUI.prepareTerrain(blockOffsetX, blockOffsetZ, idx, terrain).then(({ mesh, line }) => {
+        drawTerrainNew(mesh, line)
 
       })
     })

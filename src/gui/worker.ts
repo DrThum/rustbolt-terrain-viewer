@@ -44,5 +44,5 @@ export function prepareTerrain(
   line.position.x += chunkOffsetX
   line.position.z += chunkOffsetZ
 
-  return planeGeom
+  return { mesh: mesh.toJSON(), line: line.toJSON() }
 }

@@ -122,7 +122,7 @@ const heatFragment = `
   }
 `
 
-export function drawTerrainNew(planeGeom: THREE.PlaneGeometry) {
+export function drawTerrainNew(meshJSON, lineJSON) {
   const shaderMat = new THREE.ShaderMaterial({
     uniforms: {
       gradientMap: { value: gradientMap },
@@ -131,14 +131,29 @@ export function drawTerrainNew(planeGeom: THREE.PlaneGeometry) {
     fragmentShader: heatFragment,
   })
 
-  const mesh = new THREE.Mesh(planeGeom, shaderMat)
+  const loader = new THREE.ObjectLoader()
+  // console.log(JSON.stringify(meshJSON))
+  loader.parse(meshJSON, (obj) => {
+    scene.add(obj)
+  })
+  loader.parse(lineJSON, (obj) => {
+    scene.add(obj)
+  })
+  // const shaderMat = new THREE.ShaderMaterial({
+  //   uniforms: {
+  //     gradientMap: { value: gradientMap },
+  //   },
+  //   vertexShader: identityVertex,
+  //   fragmentShader: heatFragment,
+  // })
+  // const mesh = new THREE.Mesh(planeGeom, shaderMat)
 
-  const edges = new THREE.EdgesGeometry(planeGeom)
-  const line = new THREE.LineSegments(
-    edges,
-    new THREE.LineBasicMaterial({ color: 0xaaaaaa })
-  )
+  // const edges = new THREE.EdgesGeometry(planeGeom)
+  // const line = new THREE.LineSegments(
+  //   edges,
+  //   new THREE.LineBasicMaterial({ color: 0xaaaaaa })
+  // )
 
-  scene.add(mesh)
-  scene.add(line)
+  // scene.add(mesh)
+  // scene.add(line)
 }
