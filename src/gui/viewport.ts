@@ -46,7 +46,7 @@ function animate() {
 
   renderer.render(scene, camera)
 
-  console.log(renderer.info.render)
+  // console.log(renderer.info.render)
   stats.end()
 }
 
