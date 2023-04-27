@@ -35,6 +35,7 @@ export async function loadBlock(
         currentChunkNumber++
       ) {
         const dataView = new DataView(buffer.slice(currentOffset))
+        const areaId = dataView.getUint32(8, true)
         const baseHeight = dataView.getFloat32(12, true)
         const heightMapView = new Float32Array(
           buffer.slice(currentOffset + 20, currentOffset + 20 + 145 * 4)
@@ -46,6 +47,7 @@ export async function loadBlock(
         const heightMap = Array.from(heightMapView)
 
         terrains.push({
+          areaId,
           baseHeight,
           heightMap: interpolateHeightMap(heightMap),
         })

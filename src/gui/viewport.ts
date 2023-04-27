@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import Stats from 'stats.js'
 import { MapControls } from 'three/addons/controls/MapControls.js'
-import { mergeBufferGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import constants from '../models/constants'
 import { setup } from './gradient-map'
 import { TerrainGeometry } from '../models/terrain_geometry'
@@ -94,24 +94,29 @@ export function drawTerrain(
     )
     planeGeom.rotateX(-Math.PI * 0.5)
 
+    const count = planeGeom.attributes.position.count
+    const areaIdArray = new Uint32Array(count / 3)
+    areaIdArray.fill(0, count / 3, chunk.areaId)
+    const areaIds = new THREE.BufferAttribute(areaIdArray, 1)
     for (let i = 0; i < planeGeom.attributes.position.count; i++) {
-      ; (planeGeom.attributes.position as THREE.BufferAttribute).setY(
+      ;(planeGeom.attributes.position as THREE.BufferAttribute).setY(
         i,
         chunk.heightMap[i] + chunk.baseHeight
       )
     }
 
     planeGeom.translate(chunkOffsetX, 0, chunkOffsetZ)
+    planeGeom.setAttribute('areaId', areaIds)
 
     const edges = new THREE.EdgesGeometry(planeGeom, 10)
 
     return {
       plane: planeGeom,
-      edges: edges
+      edges: edges,
     }
   })
 
-  const singleGeometry = mergeBufferGeometries(planes.map(({ plane }) => plane))
+  const singleGeometry = mergeGeometries(planes.map(({ plane }) => plane))
 
   const shaderMat = new THREE.ShaderMaterial({
     uniforms: {
@@ -123,13 +128,10 @@ export function drawTerrain(
   })
   const mesh = new THREE.Mesh(singleGeometry, shaderMat)
 
-  const edges = mergeBufferGeometries(planes.map(({ edges }) => edges))
+  const edges = mergeGeometries(planes.map(({ edges }) => edges))
   const edgeMat = shaderMat.clone()
   edgeMat.uniforms.darkeningFactor = { value: 0.9 } // Darken the wireframe mesh
-  const line = new THREE.LineSegments(
-    edges,
-    edgeMat
-  )
+  const line = new THREE.LineSegments(edges, edgeMat)
 
   scene.add(mesh)
   scene.add(line)
