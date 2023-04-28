@@ -4,6 +4,7 @@ import { buildBlockGeometryFromChunks } from './gui/viewport'
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 
 import fontFile from './fonts/helvetiker_regular.typeface.json'
+import { overlay } from 'three/examples/jsm/nodes/Nodes.js'
 
 // GUI:
 // - toggle between gradient/area
@@ -14,19 +15,31 @@ import fontFile from './fonts/helvetiker_regular.typeface.json'
 const loader = new FontLoader()
 const font = loader.parse(fontFile)
 
-for (let blockRow = 29; blockRow < 35; blockRow++) {
-  for (let blockCol = 29; blockCol < 35; blockCol++) {
-    const blockOffsetX = constants.BLOCK_WIDTH * (blockRow - 32)
-    const blockOffsetZ = constants.BLOCK_WIDTH * (blockCol - 32)
+const counterElement = document.getElementById('current-count')
+let counter = 0
 
-    const terrainChunks = await loadBlock('Azeroth', blockRow, blockCol)
-    if (terrainChunks.length > 0) {
-      buildBlockGeometryFromChunks(
-        blockOffsetX,
-        blockOffsetZ,
-        terrainChunks,
-        font
-      )
+if (counterElement !== null) {
+  for (let blockRow = 29; blockRow < 35; blockRow++) {
+    for (let blockCol = 29; blockCol < 35; blockCol++) {
+      const blockOffsetX = constants.BLOCK_WIDTH * (blockRow - 32)
+      const blockOffsetZ = constants.BLOCK_WIDTH * (blockCol - 32)
+
+      const terrainChunks = await loadBlock('Azeroth', blockRow, blockCol)
+      if (terrainChunks.length > 0) {
+        buildBlockGeometryFromChunks(
+          blockOffsetX,
+          blockOffsetZ,
+          terrainChunks,
+          font
+        )
+      }
+
+      counterElement.innerText = (++counter).toString()
     }
   }
+}
+
+const overlayElement = document.getElementById('loading-overlay')
+if (overlayElement !== null) {
+  overlayElement.style.display = 'none'
 }

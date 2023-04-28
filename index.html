@@ -7,9 +7,38 @@
       body {
         margin: 0;
       }
+      #loading-overlay {
+        opacity: 0.7;
+        background-color: black;
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #loading-message {
+        z-index: 1001;
+        color: white;
+        font-size: 3em;
+      }
+
+      #loading-progress-bar {
+        text-align: center;
+      }
     </style>
   </head>
   <body>
+    <div id="loading-overlay">
+      <div id="loading-message">
+        <p>Loading...</p>
+        <p id="loading-progress-bar"><span id="current-count">0</span>/4096</p>
+      </div>
+    </div>
     <canvas
       id="heightgradient"
       width="64"

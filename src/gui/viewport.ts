@@ -92,7 +92,7 @@ const heatFragment = `
       vec3 col = texture2D(gradientMap, vec2(0, v)).rgb * vec3(darkeningFactor);
       gl_FragColor = vec4(col, 1.);
     } else if (mode == 1) {
-      vec3 col = unpackColor(hAreaId * (16777215. / 4130.));
+      vec3 col = unpackColor(hAreaId * (16777215. / 4130.)); // 16777215 = 2^24-1 and 4130 = max area ID in TBC 2.4.3
       gl_FragColor = vec4(col, 1.);
     }
   }
@@ -179,11 +179,8 @@ export function buildBlockGeometryFromChunks(
     areaIdText.rotateX(-Math.PI * 0.25)
     areaIdText.translate(chunkOffsetX, maxHeight + 20, chunkOffsetZ)
 
-    const edges = new THREE.EdgesGeometry(planeGeom, 10)
-
     return {
       plane: planeGeom,
-      edges: edges,
       areaIdText,
     }
   })
@@ -204,7 +201,7 @@ export function buildBlockGeometryFromChunks(
   const mesh = new THREE.Mesh(singleGeometry, shaderMat)
   mesh.userData.isText = false
 
-  const edges = mergeGeometries(planes.map(({ edges }) => edges))
+  const edges = new THREE.EdgesGeometry(singleGeometry, 10)
   const line = new THREE.LineSegments(edges, edgeMat)
 
   scene.add(mesh)
