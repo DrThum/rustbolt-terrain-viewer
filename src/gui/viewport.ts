@@ -13,6 +13,26 @@ const renderer = new THREE.WebGLRenderer()
 renderer.setSize(window.innerWidth, window.innerHeight)
 document.body.appendChild(renderer.domElement)
 
+const raycaster = new THREE.Raycaster()
+const pointerPos = new THREE.Vector2()
+
+window.addEventListener('pointermove', (event) => {
+  // calculate pointer position in normalized device coordinates
+  // (-1 to +1) for both components
+
+  pointerPos.x = (event.clientX / window.innerWidth) * 2 - 1
+  pointerPos.y = -(event.clientY / window.innerHeight) * 2 + 1
+})
+
+window.addEventListener('click', (_) => {
+  // calculate objects intersecting the picking ray
+  const intersects = raycaster.intersectObjects(scene.children)
+
+  if (intersects.length > 0) {
+    console.log(`terrain height: ${intersects[0].point.y}`)
+  }
+})
+
 const clock = new THREE.Clock()
 
 const camera = new THREE.PerspectiveCamera(
@@ -42,6 +62,9 @@ document.body.appendChild(stats.dom)
 
 function animate() {
   requestAnimationFrame(animate)
+
+  // update the picking ray with the camera and pointer position
+  raycaster.setFromCamera(pointerPos, camera)
 
   stats.begin()
   const delta = clock.getDelta()

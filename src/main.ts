@@ -19,8 +19,8 @@ const counterElement = document.getElementById('current-count')
 let counter = 0
 
 if (counterElement !== null) {
-  for (let blockRow = 29; blockRow < 35; blockRow++) {
-    for (let blockCol = 29; blockCol < 35; blockCol++) {
+  for (let blockRow = 31; blockRow < 33; blockRow++) {
+    for (let blockCol = 31; blockCol < 33; blockCol++) {
       const blockOffsetX = constants.BLOCK_WIDTH * (blockRow - 32)
       const blockOffsetZ = constants.BLOCK_WIDTH * (blockCol - 32)
 
