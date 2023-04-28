@@ -7,6 +7,7 @@ import { setup } from './gradient-map'
 import { TerrainGeometry } from '../models/terrain_geometry'
 import { Font } from 'three/examples/jsm/loaders/FontLoader.js'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
+import { GUI } from 'dat.gui'
 
 const renderer = new THREE.WebGLRenderer()
 renderer.setSize(window.innerWidth, window.innerHeight)
@@ -71,6 +72,7 @@ const identityVertex = `
 const heatFragment = `
   uniform sampler2D gradientMap;
   uniform float darkeningFactor;
+  uniform int mode;
 
   varying float hValue;
   flat varying float hAreaId;
@@ -86,13 +88,52 @@ const heatFragment = `
 
   void main() {
     float v = clamp(hValue / 250., 0., 1.);
-    // vec3 col = texture2D(gradientMap, vec2(0, v)).rgb * vec3(darkeningFactor);
-    vec3 col = unpackColor(hAreaId * (16777215. / 4130.));
-    gl_FragColor = vec4(col, 1.);
+    if (mode == 0) {
+      vec3 col = texture2D(gradientMap, vec2(0, v)).rgb * vec3(darkeningFactor);
+      gl_FragColor = vec4(col, 1.);
+    } else if (mode == 1) {
+      vec3 col = unpackColor(hAreaId * (16777215. / 4130.));
+      gl_FragColor = vec4(col, 1.);
+    }
   }
 `
 
 const gradientMap = setup()
+
+const shaderMat = new THREE.ShaderMaterial({
+  uniforms: {
+    gradientMap: { value: gradientMap },
+    darkeningFactor: { value: 1 }, // Keep the original colors for the ground
+    mode: { value: 0 },
+  },
+  vertexShader: identityVertex,
+  fragmentShader: heatFragment,
+})
+
+const edgeMat = shaderMat.clone()
+edgeMat.uniforms.darkeningFactor = { value: 0.9 } // Darken the wireframe mesh
+
+const gui = new GUI()
+const modeFolder = gui.addFolder('Mode')
+modeFolder.open()
+const settings = { mode: 0 } // heightMap || areaId
+const settingsController = modeFolder.add(settings, 'mode', {
+  heightMap: 0,
+  areaId: 1,
+})
+settingsController.onChange((newValue) => {
+  scene.traverse((child) => {
+    if (child instanceof THREE.Mesh && child.userData.isText) {
+      child.visible = newValue == 1
+    }
+  })
+
+  shaderMat.uniforms.mode.value = newValue
+  shaderMat.needsUpdate = true
+
+  edgeMat.uniforms.mode.value = newValue
+  edgeMat.needsUpdate = true
+})
 
 export function buildBlockGeometryFromChunks(
   blockOffsetX: number,
@@ -154,23 +195,16 @@ export function buildBlockGeometryFromChunks(
     textSingleGeometry,
     new THREE.MeshBasicMaterial({ color: 'black' })
   )
+  textMesh.userData.isText = true
+  textMesh.visible = false
   scene.add(textMesh)
 
   const singleGeometry = mergeGeometries(planes.map(({ plane }) => plane))
 
-  const shaderMat = new THREE.ShaderMaterial({
-    uniforms: {
-      gradientMap: { value: gradientMap },
-      darkeningFactor: { value: 1 }, // Keep the original colors for the ground
-    },
-    vertexShader: identityVertex,
-    fragmentShader: heatFragment,
-  })
   const mesh = new THREE.Mesh(singleGeometry, shaderMat)
+  mesh.userData.isText = false
 
   const edges = mergeGeometries(planes.map(({ edges }) => edges))
-  const edgeMat = shaderMat.clone()
-  edgeMat.uniforms.darkeningFactor = { value: 0.9 } // Darken the wireframe mesh
   const line = new THREE.LineSegments(edges, edgeMat)
 
   scene.add(mesh)
