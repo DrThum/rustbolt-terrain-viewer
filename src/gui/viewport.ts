@@ -24,7 +24,7 @@ window.addEventListener('pointermove', (event) => {
   pointerPos.y = -(event.clientY / window.innerHeight) * 2 + 1
 })
 
-window.addEventListener('click', (_) => {
+window.addEventListener('click', () => {
   // calculate objects intersecting the picking ray
   const intersects = raycaster.intersectObjects(scene.children)
 

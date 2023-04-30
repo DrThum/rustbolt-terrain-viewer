@@ -23,12 +23,8 @@ export async function loadBlock(
   reader.addEventListener('loadend', () => {
     const buffer = reader.result
     if (buffer instanceof ArrayBuffer) {
-      const textDecoder = new TextDecoder('utf-8')
-      const debugName =
-        textDecoder.decode(buffer.slice(8, -1)).split('\0').shift() ?? ''
-
       const terrains: TerrainGeometry[] = []
-      let currentOffset = 4 + 4 + debugName.length + 1
+      let currentOffset = 4 + 4
       for (
         let currentChunkNumber = 0;
         currentChunkNumber < 256;
