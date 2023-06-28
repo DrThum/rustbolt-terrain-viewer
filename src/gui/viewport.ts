@@ -183,7 +183,18 @@ export function buildBlockGeometryFromChunks(
     const areaIds = new THREE.BufferAttribute(areaIdArray, 1)
     let maxHeight = -999999
     for (let i = 0; i < planeGeom.attributes.position.count; i++) {
-      const y = chunk.heightMap[i] + chunk.baseHeight
+      const row_in_chunk = i / 16
+      const col_in_chunk = i % 16
+      const row_hole = row_in_chunk / 4
+      const col_hole = col_in_chunk / 4
+      const hole_bit_index = row_hole * 4 + col_hole
+
+      const has_hole = (chunk.holesData & hole_bit_index) != 0
+
+      let y = chunk.heightMap[i] + chunk.baseHeight
+      if (has_hole) {
+        y = -2000
+      }
 
       ;(planeGeom.attributes.position as THREE.BufferAttribute).setY(i, y)
 
